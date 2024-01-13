@@ -9,7 +9,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-void wol::sendMagicPacket(const char *targetMac)
+void wol::AlarmClock::sendWakeUpCall(const char *targetMac)
 {
     // create magic packet buffer
     const int MAC_REPEAT = 16;
@@ -26,13 +26,7 @@ void wol::sendMagicPacket(const char *targetMac)
                &magicPacket[i + 3], &magicPacket[i + 4], &magicPacket[i + 5]);
     }
 
-    // create a upd socket
-    int udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (udpSocket == -1)
-    {
-        std::cerr << "Error creating socket\n";
-        return;
-    }
+    int udpSocket = createUdpSocket();
 
     // enable broadcast
     int broadcastEnable = 1;
@@ -49,4 +43,15 @@ void wol::sendMagicPacket(const char *targetMac)
 
     // close socket
     close(udpSocket);
+}
+
+int wol::AlarmClock::createUdpSocket()
+{
+    int udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (udpSocket == -1)
+    {
+        std::cerr << "Error creating socket\n";
+        return;
+    }
+    return udpSocket;
 }

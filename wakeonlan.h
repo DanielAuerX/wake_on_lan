@@ -1,5 +1,12 @@
 #pragma once
 
 namespace wol{
-    void sendMagicPacket(const char* targetMac);
+    class AlarmClock{
+        public:
+            void sendWakeUpCall(const char* targetMac);
+
+        private:
+        int createUdpSocket(); 
+
+    };
 }

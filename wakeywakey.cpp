@@ -5,7 +5,7 @@
 
 int main(int argc, char *const argv[])
 {
-    std::string broadcast = "255.255.255.255"; // default
+    std::string broadcast = "192.168.1.255";   // default
     int port = 9;                              // default
     std::string target;
 
@@ -50,6 +50,7 @@ int main(int argc, char *const argv[])
 
     wol::AlarmClock alarmClock = wol::AlarmClock(broadcast.c_str(), port, target.c_str());
 
+    utils::log("Sending magic packet...");
     alarmClock.sendWakeUpCall();
 
     return 0;

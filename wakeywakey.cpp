@@ -1,6 +1,8 @@
 #include "wakeonlan.h"
 #include "utils.h"
 
+#include <string>
+
 int main(int argc, char *const argv[])
 {
     std::string broadcast = "255.255.255.255"; // default
@@ -30,11 +32,25 @@ int main(int argc, char *const argv[])
         return 1;
     }
 
+    if (!utils::isValidBroadcastAddress(broadcast))
+    {
+        utils::logError("Error: Invalid broadcast address!");
+        return 1;
+    }
+
+    if (!utils::isValidMacAddress(target))
+    {
+        utils::logError("Error: Invalid Mac address!");
+        return 1;
+    }
+
     utils::log("Broadcast address: " + broadcast);
     utils::log("Port: " + std::to_string(port));
     utils::log("Mac address: " + target);
 
-    // call wake up call
+    wol::AlarmClock alarmClock = wol::AlarmClock(broadcast.c_str(), port, target.c_str());
+
+    alarmClock.sendWakeUpCall();
 
     return 0;
 }

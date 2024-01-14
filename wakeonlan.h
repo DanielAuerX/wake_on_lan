@@ -1,12 +1,19 @@
 #pragma once
 
-namespace wol{
-    class AlarmClock{
-        public:
-            void sendWakeUpCall(const char* targetMac);
+#include <sys/socket.h>
+#include <netinet/in.h>
 
-        private:
-        int createUdpSocket(); 
+namespace wol
+{
+    class AlarmClock
+    {
+    public:
+        AlarmClock(const char *broadcast, const int &port, const char *targetMac);
+        void sendWakeUpCall();
 
+    private:
+        struct sockaddr_in mTargetAddress;
+        const char *mTargetMac;
+        int createUdpSocket();
     };
 }

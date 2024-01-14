@@ -3,55 +3,68 @@
 
 #include <string>
 
-int main(int argc, char *const argv[])
+struct WakeOnLanConfig
 {
-    std::string broadcast = "192.168.1.255";   // default
-    int port = 9;                              // default
+    std::string broadcast = "192.168.1.255"; // default
+    int port = 9;                            // default
     std::string target;
+};
 
+void setCliArguments(int argc, char *const argv[], WakeOnLanConfig &config)
+{
     for (int i = 1; i < argc; ++i)
     {
         std::string arg = argv[i];
         if (arg == "-b" && i + 1 < argc)
         {
-            broadcast = argv[++i];
+            config.broadcast = argv[++i];
         }
         else if (arg == "-p" && i + 1 < argc)
         {
-            port = std::stoi(argv[++i]);
+            config.port = std::stoi(argv[++i]);
         }
         else
         {
-            target = arg;
+            config.target = arg;
         }
     }
+}
 
+void validateCliArguments(std::string &target, std::string &broadcast)
+{
     if (target.empty())
     {
-        utils::logError("Error: Missing required <target> argument! The argument must contain the target's Mac address.\nUsage: wake_on_lan [-b <broadcast>] [-p <port>] <target>");
-        return 1;
+        utils::throwRuntimeException("Error: Missing required <target> argument! The argument must contain the target's Mac address.\nUsage: wake_on_lan [-b <broadcast>] [-p <port>] <target>");
     }
 
     if (!utils::isValidBroadcastAddress(broadcast))
     {
-        utils::logError("Error: Invalid broadcast address!");
-        return 1;
+        utils::throwRuntimeException("Error: Invalid broadcast address!");
     }
 
     if (!utils::isValidMacAddress(target))
     {
-        utils::logError("Error: Invalid Mac address!");
-        return 1;
+        utils::throwRuntimeException("Error: Invalid Mac address!");
     }
+}
 
-    utils::log("Broadcast address: " + broadcast);
-    utils::log("Port: " + std::to_string(port));
-    utils::log("Mac address: " + target);
+int main(int argc, char *const argv[])
+{
+    WakeOnLanConfig config;
 
-    wol::AlarmClock alarmClock = wol::AlarmClock(broadcast.c_str(), port, target.c_str());
+    setCliArguments(argc, argv, config);
 
-    utils::log("Sending magic packet...");
+    validateCliArguments(config.target, config.broadcast);
+
+    utils::log("Broadcast address: " + config.broadcast + "\nPort: " + std::to_string(config.port) + "\nMac address: " + config.target + "\nSending magic packet...");
+
+    wol::AlarmClock alarmClock(config.broadcast.c_str(), config.port, config.target.c_str());
+
     alarmClock.sendWakeUpCall();
+
+    utils::log("Sent magic packet to " + config.target);
 
     return 0;
 }
+
+

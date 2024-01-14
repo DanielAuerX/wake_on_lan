@@ -12,5 +12,5 @@ wake_on_lan [-b <broadcast>] [-p <port>] <target>
 
 #### Example usage
 ```bash
-wake_on_lan -b '192.168.0.255' -p 6 aa:bb:cc:dd:ee:ff
+wake_on_lan -b '192.168.0.255' -p 6 'aa:bb:cc:dd:ee:ff'
 ```
